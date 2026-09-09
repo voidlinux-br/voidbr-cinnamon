@@ -1,12 +1,12 @@
 # Maintainer: Vilmar Catafesta <vcatafesta@gmail.com>
 
-pkgname=voidbr-pkgname
-pkgdesc="Package template for VoidLinuxBR"
+pkgname=voidbr-cinnamon
+pkgdesc="VoidBR CINNAMON Meta Package"
 pkgver=$(date +%Y%m%d)
 pkgrel=$(date +%H%M)
-provides=()               # "eu SOU o $pkgname pkg1, pra quem depender deles"
-replaces=()               # "remove o pkg1 pkg2 antigo automaticamente quando eu instalar"
-conflicts=()              # "nunca me deixe coexistir com o pkg1 pkg2 original"
+provides=()  # "eu SOU o $pkgname pkg1, pra quem depender deles"
+replaces=()  # "remove o pkg1 pkg2 antigo automaticamente quando eu instalar"
+conflicts=() # "nunca me deixe coexistir com o pkg1 pkg2 original"
 arch=('any')
 license=('MIT')
 #url="ssh://git@github.com/voidlinuxbr/${pkgname}"
@@ -14,7 +14,16 @@ url="https://github.com/voidlinuxbr/${pkgname}"
 source=("git+${url}.git")
 md5sums=('SKIP')
 makedepends=()
-depends=()
+depends=(
+	voidbr-base-common
+	voidbr-xorg-common
+	voidbr-wayland-common
+	voidbr-gui-common
+  cinnamon-all
+  plank
+  playerctl
+  voidbr-cinnamon-config
+)
 backup=()
 
 # Automatically detect and use the correct install file
@@ -26,12 +35,12 @@ fi
 
 package() {
 	# Verify default folder
-  if [ -d "${srcdir}/${pkgname}/${pkgname}" ]; then
+	if [ -d "${srcdir}/${pkgname}/${pkgname}" ]; then
 		InternalDir="${srcdir}/${pkgname}/${pkgname}"
-  elif [ -d "${srcdir}/${pkgname}" ]; then
+	elif [ -d "${srcdir}/${pkgname}" ]; then
 		InternalDir="${srcdir}/${pkgname}"
 	else
-    #local
+		#local
 		InternalDir="${WORKDIR}"
 	fi
 
@@ -60,7 +69,16 @@ pre_install() {
 }
 
 post_install() {
-	log "Finalizando instalação"
+  if [ -n "$user" ] ; then
+    log "Aplicando configuracoes para $user"
+    /usr/local/bin/voidbr-copy-skel-inc --user "$user" --force --quiet || true
+  fi
+
+  log "Ativando serviços"
+  /usr/local/bin/vservice add sddm --quiet || true
+
+  log "Finalizando instalação"
+  log "${YELLOW}Instalação completa. Reinicie o sistema...${RESET}"
 }
 
 pre_upgrade() {
