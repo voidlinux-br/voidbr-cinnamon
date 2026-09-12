@@ -20,8 +20,6 @@ depends=(
 	voidbr-wayland-common
 	voidbr-gui-common
   cinnamon-all
-  plank
-  playerctl
   voidbr-cinnamon-config
 )
 backup=()
